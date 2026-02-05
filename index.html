@@ -1,0 +1,36 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Backrooms</title><style>
+body{margin:0;overflow:hidden;background:#000;color:#ff0;font-family:monospace;}
+#m{position:fixed;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#000;z-index:99;}
+button{padding:20px;background:#222;color:#ff0;border:2px solid #ff0;cursor:pointer;}
+#j{position:fixed;top:0;left:0;width:100%;height:100%;display:none;z-index:100;background:#000;}
+</style></head><body>
+<div id="m"><h1>BACKROOMS 3D</h1><button onclick="s()">OYUNA GİR (TIKLA)</button></div>
+<div id="j"><img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM2dyZnduZXl6Z3R5bmZ6Z3R5bmZ6Z3R5bmZ6Z3R5bmZ6Z3R5bmZ6JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZContext&rid=giphy.gif" width="100%" height="100%"></div>
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js"}}</script>
+<script type="module">
+import * as T from 'three';
+let sc, ca, re, mo, fl, active=false, w=false, s_k=false, a=false, d=false;
+function init(){
+sc=new T.Scene(); sc.fog=new T.Fog(0,1,15);
+ca=new T.PerspectiveCamera(75,window.innerWidth/window.innerHeight,0.1,1000);
+re=new T.WebGLRenderer(); re.setSize(window.innerWidth,window.innerHeight); document.body.appendChild(re.domElement);
+const flr=new T.Mesh(new T.PlaneGeometry(100,100),new T.MeshStandardMaterial({color:0x444422})); flr.rotation.x=-Math.PI/2; sc.add(flr);
+const ceil=new T.Mesh(new T.PlaneGeometry(100,100),new T.MeshStandardMaterial({color:0x555522})); ceil.position.y=3; ceil.rotation.x=Math.PI/2; sc.add(ceil);
+for(let i=0;i<40;i++){const wG=new T.BoxGeometry(2,3,0.2); const wM=new T.MeshStandardMaterial({color:0x666633}); const wl=new T.Mesh(wG,wM); wl.position.set(Math.random()*40-20,1.5,Math.random()*40-20); sc.add(wl);}
+fl=new T.SpotLight(0xffffff,100,20,0.3); ca.add(fl); fl.target.position.set(0,0,-1); ca.add(fl.target); sc.add(ca);
+mo=new T.Mesh(new T.BoxGeometry(0.4,2,0.4),new T.MeshBasicMaterial({color:0x000000})); mo.position.set(0,1,-10); sc.add(mo);
+window.addEventListener('keydown',e=>{if(e.code=='KeyW')w=true;if(e.code=='KeyS')s_k=true;if(e.code=='KeyA')a=true;if(e.code=='KeyD')d=true;});
+window.addEventListener('keyup',e=>{if(e.code=='KeyW')w=false;if(e.code=='KeyS')s_k=false;if(e.code=='KeyA')a=false;if(e.code=='KeyD')d=false;});
+window.addEventListener('mousemove',e=>{if(document.pointerLockElement){ca.rotation.y-=e.movementX*0.002;ca.rotation.x-=e.movementY*0.002;}});
+loop();}
+function loop(){if(!active)return; requestAnimationFrame(loop);
+let dir=new T.Vector3(); ca.getWorldDirection(dir); dir.y=0; dir.normalize();
+let side=new T.Vector3().crossVectors(ca.up,dir).normalize();
+if(w)ca.position.addScaledVector(dir,0.07); if(s_k)ca.position.addScaledVector(dir,-0.07);
+if(a)ca.position.addScaledVector(side,0.07); if(d)ca.position.addScaledVector(side,-0.07);
+let mDir=new T.Vector3().subVectors(mo.position,ca.position).normalize();
+if(ca.getWorldDirection(new T.Vector3()).dot(mDir)<0.96){mo.position.lerp(ca.position,0.012); mo.lookAt(ca.position);}
+if(ca.position.distanceTo(mo.position)<0.8){active=false; document.getElementById('j').style.display='block'; setTimeout(()=>location.reload(),2000);}
+re.render(sc,ca);}
+window.s=()=>{document.getElementById('m').style.display='none'; document.body.requestPointerLock(); active=true; init();};
+</script></body></html>
